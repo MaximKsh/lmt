@@ -23,7 +23,7 @@ class Configuration:
 
         self.adapter = adapter
         self.connection_string = connection_string
-        self.target = target or -1
+        self.target = target if target is not None else -1
         self.migration_path = migration_path or getcwd()
         self.direction = direction or FORWARD
         self.ignore_validation = ignore_validation or False

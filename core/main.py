@@ -12,7 +12,7 @@ from core.validation import validate
 def prepare_data(config, adapter):
     path = config.migration_path
     directories = [f for f in listdir(path) if isdir(join(path, f)) and f.startswith('migration_')]
-    directory_migrations = [DirectoryMigration.from_directory(d) for d in directories]
+    directory_migrations = [DirectoryMigration.from_directory(config.migration_path, d) for d in directories]
     directory_migrations.sort(key=lambda x: x.number)
     history_migrations = adapter.get_migration_history()
 
@@ -24,19 +24,22 @@ def get_target_migrations_directories(config, history_migrations, directory_migr
         return list(filter(predicate, directory_migrations))
 
     migrations_size = len(history_migrations)
-    max_migration_number = max(history_migrations, key=lambda x: x.number)
 
     if config.direction == FORWARD:
-        max_directory_number = max(directory_migrations, key=lambda x: x.number)
-        target = config.target or max_directory_number
+        max_directory = max(directory_migrations, key=lambda x: x.number)
+        if config.target != -1:
+            target = config.target
+        else:
+            target = max_directory.number
         if migrations_size != 0:
-            target_directories = filter_directories(lambda x: max_migration_number < x.number <= target)
+            max_migration = max(history_migrations, key=lambda x: x.number)
+            target_directories = filter_directories(lambda x: max_migration.number < x.number <= target)
         else:
             target_directories = filter_directories(lambda x: x.number <= target)
     elif config.direction == BACKWARD:
-        min_migration_number = min(history_migrations, key=lambda x: x.number)
+        max_migration = max(history_migrations, key=lambda x: x.number)
         target = config.target
-        target_directories = filter_directories(lambda x: min_migration_number <= target < max_migration_number)
+        target_directories = filter_directories(lambda x: target <= x.number <= max_migration.number)
     else:
         raise Exception(f'Unknown direction {config.direction}.')
 
@@ -46,10 +49,10 @@ def get_target_migrations_directories(config, history_migrations, directory_migr
 
 def get_migration_history_action(config, adapter):
     def insert(descriptor):
-        adapter.insert_migration(descriptor.name, descriptor.script_hash)
+        adapter.insert_migration(descriptor)
 
     def delete(descriptor):
-        adapter.delete_migration(descriptor.name)
+        adapter.delete_migration(descriptor)
 
     if config.direction == FORWARD:
         return insert

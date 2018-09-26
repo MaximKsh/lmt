@@ -1,4 +1,5 @@
 import hashlib
+import os
 import re
 from os import listdir
 from os.path import join, isfile
@@ -23,11 +24,19 @@ def get_sql_from_directory(directory):
 
 
 def get_tagged_sql(sql, tag_prefix):
-    sql_list = re.findall(
-        f'--\s*{tag_prefix}\s+begin\s*\n(?P<text>.*)--\s*{tag_prefix}\s+end\s*',
-        sql,
-        re.DOTALL)
-    return ''.join(sql_list)
+    reading = False
+    sql_lines = []
+    start_regex = re.compile(f'--\s*{tag_prefix}\s+begin\s*')
+    end_regex = re.compile(f'--\s*{tag_prefix}\s+end\s*')
+    for line in sql.splitlines():
+        if start_regex.match(line):
+            reading = True
+        elif end_regex.match(line):
+            reading = False
+        elif reading:
+            sql_lines.append(line)
+            sql_lines.append(os.linesep)
+    return ''.join(sql_lines)
 
 
 def get_hash(script):

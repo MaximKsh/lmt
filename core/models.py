@@ -1,3 +1,5 @@
+from os.path import join
+
 from core.utils import get_number_from_name, get_sql_from_directory, get_hash
 
 
@@ -27,9 +29,9 @@ class DirectoryMigration:
         self.script_hash = script_hash
         
     @staticmethod
-    def from_directory(directory_name):
+    def from_directory(path, directory_name):
         number = get_number_from_name(directory_name)
-        sql = get_sql_from_directory(directory_name)
+        sql = get_sql_from_directory(join(path, directory_name))
         sql_hash = get_hash(sql)
         return DirectoryMigration(number, directory_name, sql, sql_hash)
 

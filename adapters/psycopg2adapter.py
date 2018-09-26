@@ -72,7 +72,7 @@ class Adapter(AdapterBase):
         self.cur.execute("""
             DELETE FROM migrations
             WHERE number = %s   
-        """, directory_migration.number)
+        """, (directory_migration.number, ))
 
     def execute_non_query(self, sql):
         self.cur.execute(sql)
