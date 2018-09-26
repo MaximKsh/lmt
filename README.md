@@ -28,7 +28,7 @@ Migration path should look like this:
 
 ```
 
-Each of .sql file shoud contain forward block and backward block.
+Each .sql file should contain forward block and backward block.
 For example:
 ``` sql
 -- forward begin
