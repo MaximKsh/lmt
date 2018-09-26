@@ -1,7 +1,7 @@
 {
-  "adapter": "psycopg2adapter",
-  "connection_string": "host=localhost port=5432 dbname=delivery_tracker user=postgres password=postgres",
-  "direction": "backward",
+  "adapter": "psycopg2",
+  "connection_string": "host=localhost port=5432 user=postgres password=postgres",
+  "direction": "forward",
   "migration_path": "./",
   "ignore_validation": false,
   "verbose": true
